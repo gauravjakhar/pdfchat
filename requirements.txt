@@ -4,3 +4,4 @@ langchain
 PyMuPDF
 streamlit_chat
 sentence-transformers
+faiss-cpu
