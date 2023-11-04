@@ -3,3 +3,4 @@ openai
 langchain
 PyMuPDF
 streamlit_chat
+sentence-transformers
