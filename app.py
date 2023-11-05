@@ -6,22 +6,33 @@ import openai
 import streamlit as st
 from openai.error import AuthenticationError
 
+# Set the title for the Streamlit app
+st.title("Chat with PDF - 🤖 🔗")
+
 
 # Function to load the OpenAI API key
 def load_openai_api_key():
-    # Prompt for the API key if not already set in session state
+    # Only prompt for the API key if it's not already saved in session state
     if 'openai_api_key' not in st.session_state or not st.session_state['openai_api_key']:
-        api_key = st.text_input("Enter your OpenAI API key", type="password", key="temp_api_key")
-        if api_key:
-            try:
-                # Test the API key by making a dummy request
-                openai.Completion.create(engine="davinci", prompt="test", max_tokens=5, api_key=api_key)
-                st.session_state['openai_api_key'] = api_key
-            except AuthenticationError:
-                # If authentication fails, prompt again
-                st.error("Incorrect API key provided. Please enter the correct OpenAI API key.")
-                st.session_state['openai_api_key'] = None  # Reset the key in session state
-                return None
+        with st.form(key='api_key_form'):
+            api_key = st.text_input("Enter your OpenAI API key", type="password")
+            submit_button = st.form_submit_button(label='Submit')
+
+            if submit_button and api_key:
+                try:
+                    # Test the API key by making a dummy request
+                    openai.Completion.create(engine="davinci", prompt="test", max_tokens=5, api_key=api_key)
+                    st.session_state['openai_api_key'] = api_key
+                    st.success("🎉 Valid Key 🔑, upload your PDF file and chat now! 💬")
+                except AuthenticationError:
+                    # If authentication fails, prompt again
+                    st.error("Incorrect API key provided. Please enter the correct OpenAI API key.")
+                    st.session_state['openai_api_key'] = None  # Reset the key in session state
+    else:
+        # Confirm the API key is valid and continue with the application
+        st.success("🎉 Valid Key 🔑, upload your PDF file and chat now! 💬")
+
+    # Return the API key if it's set in session state
     return st.session_state.get('openai_api_key')
 
 
@@ -30,9 +41,6 @@ openai_api_key = load_openai_api_key()
 if not openai_api_key:
     st.error("Please enter your OpenAI API key.")
     st.stop()
-
-# Set the title for the Streamlit app
-st.title("Chat with PDF - 🤖 🔗")
 
 
 # Function to save uploaded file to a temporary directory
